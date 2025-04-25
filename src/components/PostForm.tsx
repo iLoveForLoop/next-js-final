@@ -2,10 +2,13 @@
 import { useState } from "react";
 import { db } from "../lib/firebase";
 import { addDoc, collection, Timestamp } from "firebase/firestore";
+// import { doc, getDoc, updateDoc, arrayUnion } from "firebase/firestore";
 import { getSessionId } from "../utils/session";
+import { useConfessStore } from "@/store/useConfessStore";
 
 export default function PostForm() {
   const [content, setContent] = useState("");
+  const setIsConfessing = useConfessStore((state) => state.setIsConfessing);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -20,7 +23,9 @@ export default function PostForm() {
       expiresAt,
       sessionId: getSessionId(),
       reactions: { like: 0, laugh: 0, cry: 0 },
+      userLikes: [], // 👈 empty array at start
     });
+    setIsConfessing(false);
     setContent("");
   };
 
