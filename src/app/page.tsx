@@ -2,7 +2,6 @@
 import PostBoard from "@/components/PostBoard";
 import PostForm from "@/components/PostForm";
 import ConfessButton from "@/components/ConfessButton";
-import { useState } from "react";
 import { useConfessStore } from "@/store/useConfessStore";
 
 export default function Home() {
@@ -14,7 +13,7 @@ export default function Home() {
       <div className="max-w-full mx-auto">
         <div className="text-center mb-0">
           <h1 className="text-5xl font-bold mb-2 text-purple-800">
-            MDC Confess
+            Anonymous Bulletin Board
           </h1>
           <p className="text-gray-600">
             Share your anonymous thoughts, secrets, and confessions
@@ -33,10 +32,10 @@ export default function Home() {
 
         <div className="mt-8">
           <h2 className="text-2xl font-semibold mb-4 text-gray-700">
-            Recent Confessions
+            Recent Post
           </h2>
 
-          <PostBoard />
+          <PostBoard  />
         </div>
       </div>
 

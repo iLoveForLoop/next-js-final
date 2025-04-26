@@ -1,30 +1,21 @@
 "use client";
 import { useState } from "react";
-import { db } from "../lib/firebase";
-import { addDoc, collection, Timestamp } from "firebase/firestore";
-// import { doc, getDoc, updateDoc, arrayUnion } from "firebase/firestore";
-import { getSessionId } from "../utils/session";
+
 import { useConfessStore } from "@/store/useConfessStore";
+import { addPost } from "@/lib/functions";
 
 export default function PostForm() {
   const [content, setContent] = useState("");
   const setIsConfessing = useConfessStore((state) => state.setIsConfessing);
 
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    const now = Timestamp.now();
-    const expiresAt = Timestamp.fromDate(
-      new Date(Date.now() + 24 * 60 * 60 * 1000)
-    );
-
-    await addDoc(collection(db, "posts"), {
-      content,
-      createdAt: now,
-      expiresAt,
-      sessionId: getSessionId(),
-      reactions: { like: 0, laugh: 0, cry: 0 },
-      userLikes: [], // 👈 empty array at start
-    });
+    try {
+      await addPost(content)
+    } catch (error) {
+      console.log(error)
+    }
     setIsConfessing(false);
     setContent("");
   };
@@ -32,7 +23,7 @@ export default function PostForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mb-6 bg-white p-4 rounded-xl shadow"
+      className={`mb-6 bg-white p-4 rounded-xl shadow`}
     >
       <textarea
         className="w-full p-2 rounded border border-gray-300"

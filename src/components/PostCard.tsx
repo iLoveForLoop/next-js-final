@@ -1,58 +1,38 @@
 "use client";
-import { db } from "../lib/firebase";
-import { doc, updateDoc, deleteDoc, getDoc } from "firebase/firestore";
 import { getSessionId } from "../utils/session";
+import { reactPost, delPost } from "@/lib/functions";
+import EditForm from "./EditForm";
+
 
 export default function PostCard({ post }: any) {
   const sessionId = getSessionId();
   const isOwner = post.sessionId === sessionId;
 
   async function react(newReaction: string) {
-    const sessionId = getSessionId();
-    const postRef = doc(db, "posts", post.id);
-    const postSnap = await getDoc(postRef);
 
-    if (postSnap.exists()) {
-      const postData = postSnap.data();
-      const userLikes = postData.userLikes || [];
-
-      const existing = userLikes.find(
-        (like: any) => like.sessionId === sessionId
-      );
-
-      if (!existing) {
-        await updateDoc(postRef, {
-          [`reactions.${newReaction}`]:
-            (postData.reactions?.[newReaction] || 0) + 1,
-          userLikes: [...userLikes, { sessionId, reaction: newReaction }],
-        });
-      } else {
-        if (existing.reaction !== newReaction) {
-          const updatedUserLikes = userLikes.map((like: any) =>
-            like.sessionId === sessionId
-              ? { ...like, reaction: newReaction }
-              : like
-          );
-
-          await updateDoc(postRef, {
-            [`reactions.${existing.reaction}`]:
-              (postData.reactions?.[existing.reaction] || 1) - 1,
-            [`reactions.${newReaction}`]:
-              (postData.reactions?.[newReaction] || 0) + 1,
-            userLikes: updatedUserLikes,
-          });
-        }
-        // If same reaction, do nothing
-      }
+    try {
+      await reactPost(newReaction, post.id)
+    } catch (error) {
+      console.log(error)
     }
+
+    
   }
 
   const deletePost = async () => {
-    await deleteDoc(doc(db, "posts", post.id));
+    try {
+        delPost(post.id)
+    } catch (error) {
+      console.log(error)
+    }
+    
   };
 
   return (
     <div className="bg-white p-4 rounded-xl shadow">
+      <div className="fixed inset-0 w-screen h-screen flex items-center justify-center bg-black bg-opacity-25">
+        <EditForm/>
+      </div>
       <p className="text-lg">{post.content}</p>
       <div className="mt-2 flex gap-2">
         <button className="cursor-pointer" onClick={() => react("like")}>
@@ -65,9 +45,15 @@ export default function PostCard({ post }: any) {
           😢 {post.reactions.cry}
         </button>
         {isOwner && (
-          <button onClick={deletePost} className="text-red-500 ml-auto">
-            🗑️ Delete
+          <>
+            <button onClick={deletePost} className="btn bg-red-300">
+            Delete
           </button>
+          <button  className="btn bg-blue-300">
+            Edit
+          </button>
+          </>
+          
         )}
       </div>
     </div>
